@@ -1,14 +1,11 @@
 import java.util.Scanner;
 
-/**
- * Created by student on 2018-05-17.
- */
+
 public class MOperation {
 
 
-    //sprawdzic czy rozmiar sie zgadza, jak nie to błąd
     public static int ReadManually() {
-        System.out.println("Rozmiar macierzy: Podaj wymiar macierzy");
+        System.out.println("Matrix size: invalid matrices dimensions");
         Scanner in = new Scanner(System.in);
         int x = in.nextInt();
         return x;
@@ -16,7 +13,7 @@ public class MOperation {
 
     public static Matrix Add(Matrix m1, Matrix m2) {
         if (m1.N != m2.N || m1.M != m2.M) {
-            System.out.println("Error - dodawanie macierzy: Wymiary macierzy nie zgadzaja sie");
+            System.out.println("Adding matrix: invalid matrices dimensions");
             System.exit(1);
         }
 
@@ -32,20 +29,16 @@ public class MOperation {
     }
 
     public static Matrix Sub(Matrix m1, Matrix m2) {
-        if (m1.M != m2.N) {
-            System.out.println("Error - mnozenie macierzy: Wymiary macierzy nie zgadzaja sie");
+        if (m1.N != m2.N || m1.M != m2.M) {
+            System.out.println("Matrix subtraction: Matrix sizes are different");
             System.exit(1);
         }
 
-        Matrix result = new Matrix(m1.M, m1.M);
+        Matrix result = new Matrix(m1.M, m1.N);
 
-        for (int i = 0; i < m1.N; i++) {
+        for (int i = 0; i < m1.M; i++) {
             for (int j = 0; j < m1.N; j++) {
-                result.tab[i][j] = 0;
-                for (int k = 0; k < m1.M; k++) {
-                    result.tab[i][j] = result.tab[i][j] + (m1.tab[i][k] * m2.tab[k][j]);
-                }
-
+                result.tab[i][j] = m1.tab[i][j] - m2.tab[i][j];
             }
         }
 
@@ -55,7 +48,7 @@ public class MOperation {
     public static Matrix MultMatrix(Matrix m1, Matrix m2) {
 
         if (m1.M != m2.N) {
-            System.out.println("Matrixes cannot be multiplied: invalid matrixes dimensions.");
+            System.out.println("Matrices cannot be multiplied: invalid matrices dimensions.");
             System.exit(1);
         }
 
@@ -116,7 +109,7 @@ public class MOperation {
     }
 
 
-    public static Matrix Compl(Matrix m) { // obliczanie macierzy dopelnien
+    public static Matrix Compl(Matrix m) {
         Matrix result = new Matrix(m.M, m.N);
 
         for (int k = 0; k < m.N; k++) {
@@ -163,7 +156,7 @@ public class MOperation {
         return true;
     }
 
-    public static double Det(Matrix m, int size) { // obliczanie wyznacznika rekurencyjnie metodą laplace'a
+    public static double Det(Matrix m, int size) { // determinant by laplace method (recursive)
         if (!IsSquareMatrix(m)) {
             System.exit(1);
         }
@@ -203,8 +196,7 @@ public class MOperation {
         double[] results = new double[factors.M];
         Matrix helper = new Matrix(m1.M, m1.N);
 
-        System.out.println("\nResults: ");
-
+//        System.out.println("\nResults: ");
         for (int k = 0; k < m1.M; k++) {
             for (int i = 0; i < m1.M; i++) {
                 for (int j = 0; j < m1.N; j++) {
@@ -219,7 +211,7 @@ public class MOperation {
                 }
             }
             results[k] = Det(helper, helper.M) / W;
-            System.out.printf("%d: %.2f\n", (k + 1), results[k]);
+//            System.out.printf("%d: %.2f\n", (k + 1), results[k]);
         }
 
         return results;
@@ -268,7 +260,7 @@ public class MOperation {
         m1.PrintMatrix();
 
         // Back substitution.
-        System.out.println("\nResults: ");
+//        System.out.println("\nResults: ");
         double[] results = new double[m1.M];
 
         for (int i = m1.M - 1; i >= 0; i--)
@@ -281,9 +273,39 @@ public class MOperation {
             }
 
             results[i] = (factors.tab[i][0] - helper) / m1.tab[i][i];
-            System.out.printf("%d: %.2f\n", (i + 1), results[i]);
+//            System.out.printf("%d: %.2f\n", (i + 1), results[i]);
         }
 
         return results;
     }
+
+
+    public static double[] SolveSystemOfEquations(Matrix matrix, Matrix vector) { // inversed matrix method
+        if (!IsSquareMatrix(matrix)) {
+            System.exit(1);
+        }
+
+        if (vector.N != 1) {
+            System.out.println("Second argument should be 1-column vector");
+            System.exit(1);
+        }
+
+        if (matrix.M != vector.M) {
+            System.out.println("Matrix should have same row number as vector");
+            System.exit(1);
+        }
+
+        double[] result = new double[matrix.M];
+
+        for (int i = 0; i < matrix.M; i++)
+        {
+            for (int j = 0; j < matrix.M; j++) {
+			    result[i] += vector.tab[j][0] * matrix.tab[i][j];
+            }
+        }
+
+        return result;
+    }
+
+
 }
